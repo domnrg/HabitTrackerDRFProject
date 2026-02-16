@@ -1,9 +1,14 @@
-from rest_framework.serializers import ModelSerializer
+from rest_framework import serializers
 
 from habits.models import Habit
 
 
-class HabitSerializer(ModelSerializer):
+class HabitSerializer(serializers.ModelSerializer):
+
+    user = serializers.HiddenField(
+        default=serializers.CurrentUserDefault()
+    )
+
     class Meta:
         model = Habit
-        fields = "__all__"
+        fields = '__all__'
