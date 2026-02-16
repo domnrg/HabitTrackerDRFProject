@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.validators import MaxValueValidator
 from django.db import models
 
 
@@ -39,6 +40,7 @@ class Habit(models.Model):
 
     periodicity = models.PositiveSmallIntegerField(
         default=1,
+        validators=[MaxValueValidator(7)],
         verbose_name='Периодичность (в днях)'
     )
 
