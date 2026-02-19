@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'users',
     'habits',
+    'telegram_bot',
 ]
 
 MIDDLEWARE = [
@@ -106,3 +107,12 @@ REST_FRAMEWORK = {
     )
 }
 
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_BEAT_SCHEDULE = {
+    'check-habits-every-minute': {
+        'task': 'habits.tasks.check_habits',
+        'schedule': 60.0,
+    },
+}
