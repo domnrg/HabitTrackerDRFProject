@@ -5,7 +5,7 @@ from habits.models import Habit
 from users.models import User
 
 
-class HabitAPITestCase(APITestCase):
+class HabitTestCase(APITestCase):
 
     def setUp(self):
         self.user = User.objects.create_user(
@@ -15,7 +15,7 @@ class HabitAPITestCase(APITestCase):
         self.client.force_authenticate(user=self.user)
 
     def test_create_habit(self):
-        """Тестирование создания привычки"""
+        """ Тестирование создания привычки """
 
         data = {
             "place": "Дом",
@@ -30,3 +30,12 @@ class HabitAPITestCase(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Habit.objects.count(), 1)
+        self.assertTrue(Habit.objects.all().exists())
+
+    def test_list_habit(self):
+        """ Тестирование получения списка привычек пользователя """
+
+        response = self.client.get("/habits/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+

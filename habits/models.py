@@ -64,3 +64,8 @@ class Habit(models.Model):
 
     def __str__(self):
         return f'Я буду {self.action} в {self.time} в {self.place}'
+
+    class Meta:
+        verbose_name = 'привычка'
+        verbose_name_plural = 'привычки'
+        ordering = ["-id"]
