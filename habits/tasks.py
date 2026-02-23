@@ -9,11 +9,22 @@ def check_habits():
     now = timezone.localtime()
 
     habits = Habit.objects.filter(
-        time=now.time(),
+        time__hour=now.hour,
+        time__minute=now.minute,
         user__telegram_chat_id__isnull=False
     )
 
     for habit in habits:
+        message = f"Пора выполнить привычку: {habit.action}"
+        send_telegram_message(
+            habit.user.telegram_chat_id,
+            message
+        )
+
+    print("HABITS FOUND:", habits.count())
+
+    for habit in habits:
+        print("SENDING:", habit.action)
         message = f"Пора выполнить привычку: {habit.action}"
         send_telegram_message(
             habit.user.telegram_chat_id,
