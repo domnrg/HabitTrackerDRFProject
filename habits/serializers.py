@@ -5,24 +5,24 @@ from habits.models import Habit
 
 class HabitSerializer(serializers.ModelSerializer):
 
-    user = serializers.HiddenField(
-        default=serializers.CurrentUserDefault()
-    )
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     class Meta:
         model = Habit
-        fields = '__all__'
+        fields = "__all__"
 
     def validate(self, data):
 
-        is_pleasant = data.get('is_pleasant')
-        reward = data.get('reward')
-        related_habit = data.get('related_habit')
-        duration = data.get('duration')
+        is_pleasant = data.get("is_pleasant")
+        reward = data.get("reward")
+        related_habit = data.get("related_habit")
+        duration = data.get("duration")
 
         if duration and duration > 120:
             raise serializers.ValidationError(
-                {"duration": "Время выполнения привычки не должно превышать 120 секунд."}
+                {
+                    "duration": "Время выполнения привычки не должно превышать 120 секунд."
+                }
             )
 
         if reward and related_habit:

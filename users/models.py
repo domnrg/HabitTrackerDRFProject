@@ -4,10 +4,7 @@ from django.db import models
 
 class User(AbstractUser):
     telegram_chat_id = models.BigIntegerField(
-        unique=True,
-        null=True,
-        blank=True,
-        verbose_name="Telegram chat ID"
+        unique=True, null=True, blank=True, verbose_name="Telegram chat ID"
     )
 
     def __str__(self):

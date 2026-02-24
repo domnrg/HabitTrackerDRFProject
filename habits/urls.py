@@ -6,8 +6,7 @@ from habits.apps import HabitsConfig
 app_name = HabitsConfig.name
 
 router = SimpleRouter()
-router.register('', HabitViewSet, basename='habit')
-router.register('public-habits', PublicHabitViewSet, basename='public-habit')
+router.register("", HabitViewSet, basename="habit")
+router.register("public-habits", PublicHabitViewSet, basename="public-habit")
 
 urlpatterns = router.urls
-
