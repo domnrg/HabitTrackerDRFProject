@@ -39,3 +39,21 @@ class HabitTestCase(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_retrieve_habit(self):
+        """ Тестирование получения детальной информации о привычке """
+
+        habit = Habit.objects.create(
+            user=self.user,
+            place="Дом",
+            time="12:00",
+            action="Читать книгу",
+            duration=60,
+            periodicity=1,
+            is_public=False
+        )
+
+        response = self.client.get(f"/habits/{habit.id}/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["action"], "Читать книгу")
+        self.assertEqual(response.data["place"], "Дом")
