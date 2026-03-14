@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 
+from celery.schedules import crontab
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -27,7 +28,6 @@ INSTALLED_APPS = [
     "corsheaders",
     "users",
     "habits",
-    "telegram_bot",
 ]
 
 MIDDLEWARE = [
@@ -117,6 +117,14 @@ CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/0"
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+
+CELERY_BEAT_SCHEDULE = {
+    "check-habits-every-minute": {
+        "task": "habits.tasks.check_habits",
+        "schedule": crontab(),  # каждую минуту
+    },
+}
+
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
