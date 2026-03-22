@@ -19,6 +19,8 @@
   - "redis" - Redis для очередей
   - "celery" - Celery Worker
   - "celery-beat" - планировщик периодических задач
+- Автоматический перезапуск приложения
+- В продакшен-среде приложение запускается с использованием Gunicorn
 
 ## Технологии
 - Python 3.10+
@@ -140,6 +142,28 @@ Scheduler: Sending due task
  - Дождитесь выполнения задачи
  - Убедитесь, что в логах Celery есть выполнения задачи 
  - Убедитесь, что в Telegram пришло сообщение
+
+## Настройка сервера:
+
+1. Подключитесь к серверу.
+```
+ssh user@server_ip
+```
+2. Установите Docker.
+```
+sudo apt update
+sudo apt install docker.io docker-compose -y
+```
+3. Клонируйте проект.
+```
+git clone <repo_url>
+cd project
+```
+4. Создайте ".env"
+5. Запустите
+```
+docker compose up --build
+```
 
 ## Лицензия:
 
