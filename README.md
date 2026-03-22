@@ -36,7 +36,8 @@
 ```
 git clone https://github.com/username/HabitTrackerDRFProject.git
 ```
-2. Создайте .env файл со следующими параметрами:
+2. Создайте файл окружения на основе шаблона .env.sample.
+3. Откройте файл .env и заполните необходимые переменные:
 ```
 SECRET_KEY=
 POSTGRES_DB=
@@ -48,15 +49,15 @@ TELEGRAM_TOKEN=
 CELERY_BROKER_URL=
 CELERY_RESULT_BACKEND=
 ```
-2. Соберите и запустите контейнеры:
+4. Соберите и запустите контейнеры:
 ```
 docker compose up --build
 ```
-3. Примените миграции:
+5. Примените миграции:
 ```
 docker compose exec web python manage.py migrate
 ```
-4. Создайте суперпользователя:
+6. Создайте суперпользователя:
 ```
 docker compose exec web python manage.py createsuperuser
 ```
@@ -71,30 +72,75 @@ ReDoc документация: http://localhost:8000/redoc/
 
 ## Проверка работоспособности:
 
-1. Открыть Swagger или Redoc в браузере и проверить доступность API
-2. Создать привычку через API и убедиться что она сохраняется в базе
-3. Проверить логи Celery Worker - сообщение о выполнении задачи должно появляться
-4. Проверить что Redis PostgreSQL доступны из контейнеров 
-(docker compose exec web ping db и docker compose exec web redis-cli ping)
-
-## Команды полезные при работе:
-
-- Остановить контейнеры:
-```
-docker compose down
-```
-- Пересобрать контейнеры после изменений:
+После запуска проекта
 ```
 docker compose up --build
 ```
-- Посмотреть веб-логи сервиса:
+убедитесь что все сервисы работают корректно:
+
+1. "web" - Django сервер
+
+Откройте в браузере http://localhost:8000/swagger/
+Если страница открывается - сервис работает
+
+Проверка через логи
 ```
 docker compose logs -f web
 ```
-- Посмотреть логи Celery Worker:
+2. "db" - PostgreSQL
+
+Проверка подключения к базе:
+```
+docker compose exec db psql - U postgres
+```
+Если удалось войти в консоль PostgreSQL - база работает
+
+Проверка таблиц:
+```
+\dt
+```
+3. "redis"
+
+Проверка через CLI:
+```
+docker compose exec redis redis-cli
+```
+Внутри выполнить
+```
+ping
+```
+Ожидаемый ответ:
+```
+PONG
+```
+4. "celery" - Celery Worker
+
+Проверка логов:
 ```
 docker compose logs -f celery
 ```
+Ожидаемо увидеть:
+ - подключение к Redis
+ - (Task received)
+
+5. "celery-beat"
+
+Проверка логов:
+```
+docker compose logs -f celery-beat
+```
+Ожидаемо увидеть:
+ - отправку периодических задач
+ - сообщение вида
+```
+Scheduler: Sending due task
+```
+6. Проверка отправки уведомлений
+ - Создайте привычку с временем, близким к текущему
+ - Дождитесь выполнения задачи
+ - Убедитесь, что в логах Celery есть выполнения задачи 
+ - Убедитесь, что в Telegram пришло сообщение
+
 ## Лицензия:
 
 Проект распространяется под [лицензией MIT](LICENSE).
