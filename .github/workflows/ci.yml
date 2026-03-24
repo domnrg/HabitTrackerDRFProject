@@ -1,11 +1,11 @@
 name: Django CI
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 on: [push, pull_request]
 
 jobs:
   lint:
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -25,6 +25,8 @@ jobs:
         run: flake8 .
 
   test:
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     runs-on: ubuntu-latest
     needs: lint
 
@@ -46,6 +48,8 @@ jobs:
         run: python manage.py test
 
   build:
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     runs-on: ubuntu-latest
     needs: test
 
@@ -56,6 +60,8 @@ jobs:
         run: docker build -t habittracker .
 
   deploy:
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     runs-on: ubuntu-latest
     needs: build
 
