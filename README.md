@@ -180,13 +180,13 @@ docker compose up --build
 ```
 ## Автоматический деплой (CI/CD)
 
-В проекте настроен GitHab Actions workflow для автоматической проверки и деплоя приложения.
+В проекте настроен GitHub Actions workflow для автоматической проверки и деплоя приложения.
 
 ### Как работает workflow
 
-При каждом push в ветку develop выплоняются следующие шаги:
+При каждом push в ветку develop выполняются следующие шаги:
 
-1. Запускается литер (flake8)
+1. Запускается линтер (flake8)
 2. Запускаются тесты Django
 3. Собирается Docker-образ
 4. Выполняется деплой на удаленный сервер через SSH
@@ -204,12 +204,22 @@ docker compose up --build
 
 ### Как происходит деплой
 
-GitHab Actions подключается к серверу SSH и выполняет команды:
+GitHub Actions выполняет следующие действия:
+
+1. Копирование проекта на сервер с помощью rsync
 ```
-cd/home/user/project
-git pull
+rsync -avz --exclude '__pycache__' --exclude '.git' .
+user@server:/home/user/project
+```
+2. Запуск проекта на сервере
+
+После подключения по SSH выполняются команды:
+```
 docker compose down
 docker compose up -d --build
+
+docker compose exec -T web python manage.py migrate
+docker compose exec -T web python manage.py collectstatic --noinput
 ```
 ### Как запускать деплой
 
@@ -217,7 +227,7 @@ docker compose up -d --build
 ```
 git add .
 git commit -m "update"
-git push origin main
+git push origin develop
 ```
 2. Перейдите во вкладку "Actions" в GitHub
 3. Убедитесь, что workflow успешно выполнен

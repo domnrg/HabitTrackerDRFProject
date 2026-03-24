@@ -1,6 +1,6 @@
 name: Django CI
 
-on: push
+on: [push, pull_request]
 
 jobs:
   lint:
@@ -23,8 +23,8 @@ jobs:
         run: flake8 .
 
   test:
-    needs: lint
     runs-on: ubuntu-latest
+    needs: lint
 
     steps:
       - name: Check out code
@@ -44,8 +44,8 @@ jobs:
         run: python manage.py test
 
   build:
-    needs: test
     runs-on: ubuntu-latest
+    needs: test
 
     steps:
       - uses: actions/checkout@v3
@@ -54,24 +54,31 @@ jobs:
         run: docker build -t habittracker .
 
   deploy:
-    needs: build
     runs-on: ubuntu-latest
+    needs: build
 
     steps:
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.3
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.8.1
         with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd ${{ secrets.DEPLOY_DIR }} || exit
+          ssh-key: ${{ secrets.SSH_KEY }}
 
-            if [ ! -d ".git" ]; then
-              git clone https://github.com/${{ github.repository }} .
-            else
-              git pull
-            fi
+      - name: Copy project files to server
+        run: |
+          rsync -avz --exclude '__pycache__' --exclude '.git' . \
+          ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:${{ secrets.DEPLOY_DIR }}
 
+      - name: Run project on server
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+            cd ${{ secrets.DEPLOY_DIR }}
             docker compose down
             docker compose up -d --build
+          
+            docker compose exec -T web python manage.py migrate
+            docker compose exec -T web python manage.py collectstatic --noinput
+          EOF
+  
