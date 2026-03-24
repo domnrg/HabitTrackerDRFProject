@@ -201,6 +201,12 @@ docker compose up --build
 - SSH_USER - пользователь сервера
 - SSH_KEY - приватный SSH-ключ
 - DEPLOY_DIR - директория проекта на сервере
+- SECRET_KEY=your_secret_key
+- POSTGRES_DB=habittracker
+- POSTGRES_USER=postgres
+- POSTGRES_PASSWORD=your_postgras_password
+- POSTGRES_HOST=db
+- POSTGRES_PORT=5432
 
 ### Как происходит деплой
 
