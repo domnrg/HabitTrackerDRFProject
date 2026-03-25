@@ -93,7 +93,9 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
           export DEBUG=False
-          export SECRET_KEY=${{ secrets.SECRET_KEY }}
+          export SECRET_KEY="${{ secrets.SECRET_KEY }}"
+          export DB_PASSWORD="${{ secrets.DB_PASSWORD }}"
+          
           cd ${{ secrets.DEPLOY_DIR }}
           docker-compose down
           docker-compose up -d
