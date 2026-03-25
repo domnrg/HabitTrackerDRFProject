@@ -86,7 +86,7 @@ jobs:
 
       - name: Debug SSH
         run: |
-          ssh -v ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}
+          ssh -v ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}
 
       - name: Copy project files to server
         run: |
