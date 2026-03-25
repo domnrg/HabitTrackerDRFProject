@@ -84,10 +84,6 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
 
-      - name: Debug SSH
-        run: |
-          ssh -v ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}
-
       - name: Copy project files to server
         run: |
           rsync -avz --exclude '__pycache__' --exclude '.git' . \
@@ -97,10 +93,10 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
             cd ${{ secrets.DEPLOY_DIR }}
-            docker compose down
-            docker compose up -d --build
+            docker-compose down
+            docker-compose up -d
           
-            docker compose exec -T web python manage.py migrate
-            docker compose exec -T web python manage.py collectstatic --noinput
+            docker-compose exec -T web python manage.py migrate
+            docker-compose exec -T web python manage.py collectstatic --noinput
           EOF
   
