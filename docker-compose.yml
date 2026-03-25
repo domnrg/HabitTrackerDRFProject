@@ -6,8 +6,6 @@ services:
     restart: always
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    env_file:
-      - ./.env
 
   redis:
     image: redis:7.2.0
@@ -24,8 +22,7 @@ services:
     depends_on:
       - db
       - redis
-    env_file:
-      - ./.env
+
 
   celery:
     build: .
@@ -34,8 +31,7 @@ services:
     depends_on:
       - redis
       - db
-    env_file:
-      - ./.env
+
 
   celery-beat:
     build: .
@@ -44,8 +40,7 @@ services:
     depends_on:
       - redis
       - db
-    env_file:
-      - ./.env
+
 
 volumes:
   postgres_data:
