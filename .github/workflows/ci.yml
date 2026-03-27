@@ -93,10 +93,17 @@ jobs:
         run: |
           ssh -T -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} \
           "cd ${{ secrets.DEPLOY_DIR }} && \
+          SECRET_KEY='${{ secrets.SECRET_KEY }}' \
+          POSTGRES_DB='${{ secrets.POSTGRES_DB }}' \
+          POSTGRES_USER='${{ secrets.POSTGRES_USER }}' \
+          POSTGRES_PASSWORD='${{ secrets.POSTGRES_PASSWORD }}' \
+          POSTGRES_HOST='${{ secrets.POSTGRES_HOST }}' \
+          POSTGRES_PORT='${{ secrets.POSTGRES_PORT }}' \
           docker-compose down && \
           docker-compose up -d && \
           docker-compose exec -T web python manage.py migrate && \
           docker-compose exec -T web python manage.py collectstatic --noinput"
+
       
 
         
