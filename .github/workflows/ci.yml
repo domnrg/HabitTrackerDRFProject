@@ -91,18 +91,23 @@ jobs:
 
       - name: Run project on server
         run: |
-          ssh -T -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF' 
+          ssh -T -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
           export SECRET_KEY="${{ secrets.SECRET_KEY }}"
           export POSTGRES_DB="${{ secrets.POSTGRES_DB }}"
           export POSTGRES_USER="${{ secrets.POSTGRES_USER }}"
           export POSTGRES_PASSWORD="${{ secrets.POSTGRES_PASSWORD }}"
-          export POSTGRES_HOST="${{ secrets.POSTGRES_HOST }}" 
+          export POSTGRES_HOST="${{ secrets.POSTGRES_HOST }}"
           export POSTGRES_PORT="${{ secrets.POSTGRES_PORT }}"
-          cd ${{ secrets.DEPLOY_DIR }} docker-compose down
-          docker-compose up -d 
+
+          cd ${{ secrets.DEPLOY_DIR }}
+
+          docker-compose down
+          docker-compose up -d
+
           docker-compose exec -T web python manage.py migrate
           docker-compose exec -T web python manage.py collectstatic --noinput
           EOF
+      
 
       
 
