@@ -19,6 +19,9 @@
   - "redis" - Redis для очередей
   - "celery" - Celery Worker
   - "celery-beat" - планировщик периодических задач
+- Автоматический перезапуск приложения
+- В продакшен-среде приложение запускается с использованием Gunicorn
+- Автоматический деплой (CI/CD)
 
 ## Технологии
 - Python 3.10+
@@ -37,7 +40,8 @@
 git clone https://github.com/username/HabitTrackerDRFProject.git
 ```
 2. Создайте файл окружения на основе шаблона .env.sample.
-3. Откройте файл .env и заполните необходимые переменные:
+
+### Пример файла .env.sample
 ```
 SECRET_KEY=
 POSTGRES_DB=
@@ -48,6 +52,18 @@ POSTGRES_PORT=
 TELEGRAM_TOKEN=
 CELERY_BROKER_URL=
 CELERY_RESULT_BACKEND=
+```
+3. Откройте файл .env и заполните необходимые переменные:
+```
+SECRET_KEY=your_secret_key
+POSTGRES_DB=habittracker
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=your_postgras_password
+POSTGRES_HOST=db
+POSTGRES_PORT=5432
+TELEGRAM_TOKEN=your_token
+CELERY_BROKER_URL=redis://redis:6379/0
+CELERY_RESULT_BACKEND=redis://redis:6379/0
 ```
 4. Соберите и запустите контейнеры:
 ```
@@ -74,7 +90,7 @@ ReDoc документация: http://localhost:8000/redoc/
 
 После запуска проекта
 ```
-docker compose up --build
+docker compose up -d --build
 ```
 убедитесь что все сервисы работают корректно:
 
@@ -91,7 +107,7 @@ docker compose logs -f web
 
 Проверка подключения к базе:
 ```
-docker compose exec db psql - U postgres
+docker compose exec db psql -U postgres
 ```
 Если удалось войти в консоль PostgreSQL - база работает
 
@@ -141,6 +157,88 @@ Scheduler: Sending due task
  - Убедитесь, что в логах Celery есть выполнения задачи 
  - Убедитесь, что в Telegram пришло сообщение
 
+## Настройка сервера:
+
+1. Подключитесь к серверу.
+```
+ssh user@server_ip
+```
+2. Установите Docker.
+```
+sudo apt update
+sudo apt install docker.io docker-compose -y
+```
+3. Клонируйте проект.
+```
+git clone <repo_url>
+cd project
+```
+4. Создайте ".env"
+5. Запустите
+```
+docker compose up --build
+```
+## Автоматический деплой (CI/CD)
+
+В проекте настроен GitHub Actions workflow для автоматической проверки и деплоя приложения.
+
+### Как работает workflow
+
+При каждом push выполняются следующие шаги:
+
+1. Запускается линтер (flake8)
+2. Запускаются тесты Django
+3. Собирается Docker-образ
+4. Выполняется деплой на удаленный сервер через SSH
+
+Если тесты выполняются с ошибкой - деплой НЕ выполняется
+
+### Необходимые Secrets в GitHub
+
+В репозитории необходимо добавить следующие переменные:
+
+- SERVER_IP - IP-адрес сервера
+- SSH_USER - пользователь сервера
+- SSH_KEY - приватный SSH-ключ
+- DEPLOY_DIR - директория проекта на сервере
+- SECRET_KEY=your_secret_key
+- POSTGRES_DB=habittracker
+- POSTGRES_USER=postgres
+- POSTGRES_PASSWORD=your_postgras_password
+- POSTGRES_HOST=db
+- POSTGRES_PORT=5432
+
+### Как происходит деплой
+
+GitHub Actions выполняет следующие действия:
+
+1. Копирование проекта на сервер с помощью rsync
+```
+rsync -avz --exclude '__pycache__' --exclude '.git' .
+user@server:/home/user/project
+```
+2. Запуск проекта на сервере
+
+После подключения по SSH выполняются команды:
+```
+docker compose down
+docker compose up -d --build
+
+docker compose exec -T web python manage.py migrate
+docker compose exec -T web python manage.py collectstatic --noinput
+```
+### Как запускать деплой
+
+1. Закомитте изменения:
+```
+git add .
+git commit -m "update"
+git push origin develop
+```
+2. Перейдите во вкладку "Actions" в GitHub
+3. Убедитесь, что workflow успешно выполнен
+
+После успешного выполнения приложение автоматически обновится на сервере.
 ## Лицензия:
 
 Проект распространяется под [лицензией MIT](LICENSE).
